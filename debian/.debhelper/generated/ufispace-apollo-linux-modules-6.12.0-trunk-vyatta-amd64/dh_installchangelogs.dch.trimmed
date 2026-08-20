@@ -1,0 +1,32 @@
+ufispace-apollo-linux-modules (4.1.1-0vyatta4) unstable; urgency=medium
+
+  * Convert to i2c_new_dummy_device (Bugfix: VRVDR-55062)
+
+ -- Charles (Chas) Williams <ciwillia@vyatta.att-mail.com>  Wed, 14 Jul 2021 15:07:16 -0400
+
+ufispace-apollo-linux-modules (4.1.1-0vyatta3) unstable; urgency=medium
+
+  * Add noobs build profile (Closes: VRVDR-53810)
+
+ -- James Wheatley <jammy@att.com>  Mon, 17 May 2021 14:05:23 +0100
+
+ufispace-apollo-linux-modules (4.1.1-0vyatta2) unstable; urgency=medium
+
+  * debian: allow versioned dependencies on the provides to work
+
+ -- Robert Shearman <robert.shearman@att.com>  Fri, 03 Jul 2020 16:15:28 +0100
+
+ufispace-apollo-linux-modules (4.1.1-0vyatta1) unstable; urgency=medium
+
+  * Import of bsp/modules from NCP1-1_BSP_Release_R4.1.1.zip
+  * Refresh patches
+  * debian: update copyright file with upstream changes
+  * debian: don't build the i2c-mux-pca954x driver
+
+ -- Robert Shearman <robert.shearman@att.com>  Thu, 02 Jul 2020 12:16:02 +0100
+
+ufispace-apollo-linux-modules (3.0.0-0vyatta2) unstable; urgency=medium
+
+  * DANOS Import master
+
+ -- Robert Shearman <robert.shearman@att.com>  Fri, 08 Nov 2019 14:33:31 +0000

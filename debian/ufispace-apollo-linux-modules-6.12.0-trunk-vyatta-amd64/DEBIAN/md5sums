@@ -1,0 +1,5 @@
+1f19a5ce86f9dc5a478afd203212b024  lib/modules/6.12.0-trunk-vyatta-amd64/extra/x86-64-ufispace-s9700-53dx-cpld.ko
+ebc83ddecf64c31a6d0ae18f8fb73e8c  lib/modules/6.12.0-trunk-vyatta-amd64/extra/x86-64-ufispace-s9700-53dx-eeprom-mb.ko
+23c68422b1779c0f2b19621703ad68fa  lib/modules/6.12.0-trunk-vyatta-amd64/extra/x86-64-ufispace-s9700-53dx-optoe.ko
+dffe36a2d9c6eff83f96952c7df0cb70  usr/share/doc/ufispace-apollo-linux-modules-6.12.0-trunk-vyatta-amd64/changelog.Debian.gz
+23c62373048783d5182c4a8ed1b9dc8c  usr/share/doc/ufispace-apollo-linux-modules-6.12.0-trunk-vyatta-amd64/copyright

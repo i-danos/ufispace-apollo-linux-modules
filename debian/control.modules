@@ -1,0 +1,7 @@
+Package: ufispace-apollo-linux-modules-6.12.0-trunk-vyatta-amd64
+Section: kernel
+Architecture: any
+Provides: ufispace-apollo-linux-modules (= ${binary:Version})
+Depends: ${misc:Depends}, linux-image-6.12.0-trunk-vyatta-amd64 (= 6.12.94-1vyatta1) | linux-image-6.12.0-trunk-vyatta-amd64-signed (= 6.12.94-1vyatta1) | linux-image-6.12.0-trunk-vyatta-amd64-unsigned (= 6.12.94-1vyatta1)
+Description: Kernel modules for use with UFI Apollo BSP
+ Provides UFI Apollo kernel modules.

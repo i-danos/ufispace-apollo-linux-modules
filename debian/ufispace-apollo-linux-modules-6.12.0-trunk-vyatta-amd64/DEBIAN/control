@@ -1,0 +1,12 @@
+Package: ufispace-apollo-linux-modules-6.12.0-trunk-vyatta-amd64
+Source: ufispace-apollo-linux-modules
+Version: 4.1.1-0vyatta4
+Architecture: amd64
+Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
+Installed-Size: 167
+Depends: linux-image-6.12.0-trunk-vyatta-amd64 (= 6.12.94-1vyatta1) | linux-image-6.12.0-trunk-vyatta-amd64-signed (= 6.12.94-1vyatta1) | linux-image-6.12.0-trunk-vyatta-amd64-unsigned (= 6.12.94-1vyatta1)
+Provides: ufispace-apollo-linux-modules (= 4.1.1-0vyatta4)
+Section: kernel
+Priority: optional
+Description: Kernel modules for use with UFI Apollo BSP
+ Provides UFI Apollo kernel modules.
