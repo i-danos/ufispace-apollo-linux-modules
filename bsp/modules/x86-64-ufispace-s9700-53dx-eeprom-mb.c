@@ -27,6 +27,16 @@
 #include <linux/i2c.h>
 #include <linux/mutex.h>
 
+/* I2C_CLASS_DDC/SPD were removed from modern kernel headers along with the
+ * rest of the legacy i2c class-based auto-detection bits; keep the original
+ * values here so mb_eeprom_detect()'s address-range logic is unchanged. */
+#ifndef I2C_CLASS_DDC
+#define I2C_CLASS_DDC		(1<<3)
+#endif
+#ifndef I2C_CLASS_SPD
+#define I2C_CLASS_SPD		(1<<7)
+#endif
+
 /* Addresses to scan */
 static const unsigned short normal_i2c[] = { /*0x50, 0x51, 0x52, 0x53, 0x54,
                     0x55, 0x56, 0x57,*/ I2C_CLIENT_END };
@@ -200,13 +210,12 @@ static int mb_eeprom_detect(struct i2c_client *client, struct i2c_board_info *in
         return -ENODEV;
     }
 
-    strlcpy(info->type, "eeprom", I2C_NAME_SIZE);
+    strscpy(info->type, "eeprom", I2C_NAME_SIZE);
 
     return 0;
 }
 
-static int mb_eeprom_probe(struct i2c_client *client,
-            const struct i2c_device_id *id)
+static int mb_eeprom_probe(struct i2c_client *client)
 {
     struct eeprom_data *data;
     int err;
@@ -234,12 +243,10 @@ exit:
     return err;
 }
 
-static int mb_eeprom_remove(struct i2c_client *client)
+static void mb_eeprom_remove(struct i2c_client *client)
 {
     sysfs_remove_bin_file(&client->dev.kobj, &mb_eeprom_attr);
     kfree(i2c_get_clientdata(client));
-
-    return 0;
 }
 
 static const struct i2c_device_id mb_eeprom_id[] = {

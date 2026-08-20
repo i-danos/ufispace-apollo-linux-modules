@@ -1,0 +1,1 @@
+savedcmd_/build-iso/danos-sources/ufispace-apollo-linux-modules/bsp/modules/x86-64-ufispace-s9700-53dx-cpld.mod := printf '%s\n'   x86-64-ufispace-s9700-53dx-cpld.o | awk '!x[$$0]++ { print("/build-iso/danos-sources/ufispace-apollo-linux-modules/bsp/modules/"$$0) }' > /build-iso/danos-sources/ufispace-apollo-linux-modules/bsp/modules/x86-64-ufispace-s9700-53dx-cpld.mod

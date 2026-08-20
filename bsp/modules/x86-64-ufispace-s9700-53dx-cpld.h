@@ -96,6 +96,7 @@ enum LED_GREEN {
 #define CPLD_QSFP_LED_BASE_REG            0x80
 #define CPLD_QSFP_LED_BLINK_BASE_REG      0x90
 #define CPLD_PSU_STATUS_BASE_REG          0x44
+#define CPLD_MUX_CONTROL_REG              0x45
 
 #if 0
 /* bit definition for register value */

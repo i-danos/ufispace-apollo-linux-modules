@@ -148,6 +148,7 @@ enum apollo_cpld_sysfs_attributes {
     CPLD_GBOX_INTR_0,
     CPLD_GBOX_INTR_1,
     CPLD_RETIMER_INTR,
+    CPLD_MUX_CONTROL,
 };
 
 /* CPLD sysfs attributes hook functions  */
@@ -237,6 +238,10 @@ static ssize_t read_gbox_intr(struct device *dev,
                 struct device_attribute *da, char *buf);
 static ssize_t read_retimer_intr(struct device *dev,
                 struct device_attribute *da, char *buf);
+static ssize_t read_mux_control(struct device *dev,
+                struct device_attribute *da, char *buf);
+static ssize_t write_mux_control(struct device *dev,
+        struct device_attribute *da, const char *buf, size_t count);
 static LIST_HEAD(cpld_client_list);  /* client list for cpld */
 static struct mutex list_lock;  /* mutex for client list */
 
@@ -469,6 +474,8 @@ static SENSOR_DEVICE_ATTR(cpld_gbox_intr_1, S_IRUGO,
 		read_gbox_intr, NULL, CPLD_GBOX_INTR_1);
 static SENSOR_DEVICE_ATTR(cpld_retimer_intr, S_IRUGO,
 		read_retimer_intr, NULL, CPLD_RETIMER_INTR);
+static SENSOR_DEVICE_ATTR(cpld_mux_control, S_IWUSR | S_IRUGO,
+        read_mux_control, write_mux_control, CPLD_MUX_CONTROL);
 /* define support attributes of cpldx , total 5 */
 /* cpld 1 */
 static struct attribute *apollo_cpld1_attributes[] = {
@@ -522,6 +529,7 @@ static struct attribute *apollo_cpld1_attributes[] = {
     &sensor_dev_attr_cpld_gbox_intr_0.dev_attr.attr,
     &sensor_dev_attr_cpld_gbox_intr_1.dev_attr.attr,
     &sensor_dev_attr_cpld_retimer_intr.dev_attr.attr,
+    &sensor_dev_attr_cpld_mux_control.dev_attr.attr,
     NULL
 };
 
@@ -1614,6 +1622,50 @@ static ssize_t read_retimer_intr(struct device *dev,
     return -1;
 }
 
+/* get mux control register value */
+static ssize_t read_mux_control(struct device *dev,
+				struct device_attribute *da,
+				char *buf)
+{
+    struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+    struct i2c_client *client = to_i2c_client(dev);
+    struct cpld_data *data = i2c_get_clientdata(client);
+    u8 reg;
+    int reg_val;
+
+    if (attr->index == CPLD_MUX_CONTROL) {
+        reg = CPLD_MUX_CONTROL_REG;
+        I2C_READ_BYTE_DATA(reg_val, &data->access_lock, client, reg);
+        if (reg_val < 0)
+            return -1;
+        return sprintf(buf, "0x%02x\n", reg_val);
+    }
+    return -1;
+}
+
+/* set value to mux control register */
+static ssize_t write_mux_control(struct device *dev,
+				 struct device_attribute *da,
+				 const char *buf,
+				 size_t count)
+{
+    struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+    struct i2c_client *client = to_i2c_client(dev);
+    struct cpld_data *data = i2c_get_clientdata(client);
+    u8 reg, reg_val;
+    int ret;
+
+    if (kstrtou8(buf, 0, &reg_val) < 0)
+        return -EINVAL;
+
+    if (attr->index == CPLD_MUX_CONTROL) {
+        reg = CPLD_MUX_CONTROL_REG;
+        I2C_WRITE_BYTE_DATA(ret, &data->access_lock,
+                    client, reg, reg_val);
+    }
+    return count;
+}
+
 /* add valid cpld client to list */
 static void apollo_cpld_add_client(struct i2c_client *client)
 {
@@ -1660,8 +1712,7 @@ static void apollo_cpld_remove_client(struct i2c_client *client)
 }
 
 /* cpld drvier probe */
-static int apollo_cpld_probe(struct i2c_client *client,
-                    const struct i2c_device_id *dev_id)
+static int apollo_cpld_probe(struct i2c_client *client)
 {
     int status;
     struct cpld_data *data = NULL;
@@ -1711,7 +1762,7 @@ static int apollo_cpld_probe(struct i2c_client *client,
             data->index);
 #endif
 
-              data->index = dev_id->driver_data;
+              data->index = (unsigned long)i2c_get_match_data(client);
 
     /* register sysfs hooks for different cpld group */
     dev_info(&client->dev, "probe cpld with index %d\n", data->index);
@@ -1769,7 +1820,7 @@ exit:
 }
 
 /* cpld drvier remove */
-static int apollo_cpld_remove(struct i2c_client *client)
+static void apollo_cpld_remove(struct i2c_client *client)
 {
     struct cpld_data *data = i2c_get_clientdata(client);
 
@@ -1790,7 +1841,6 @@ static int apollo_cpld_remove(struct i2c_client *client)
     }
 
     apollo_cpld_remove_client(client);
-    return 0;
 }
 
 MODULE_DEVICE_TABLE(i2c, apollo_cpld_id);

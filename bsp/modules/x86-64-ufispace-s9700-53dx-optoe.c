@@ -125,6 +125,7 @@
 #include <linux/sysfs.h>
 #include <linux/jiffies.h>
 #include <linux/i2c.h>
+#include <linux/version.h>
 
 #ifdef EEPROM_CLASS
 #include <linux/eeprom_class.h>
@@ -536,6 +537,7 @@ static ssize_t optoe_eeprom_update_client(struct optoe_data *optoe,
 	struct i2c_client *client;
 	ssize_t retval = 0;
 	uint8_t page = 0;
+	uint8_t read_page = 0;
 	loff_t phy_offset = off;
 	int ret = 0;
 
@@ -552,6 +554,22 @@ static ssize_t optoe_eeprom_update_client(struct optoe_data *optoe,
 					page, ret);
 			return ret;
 		}
+
+		ret = optoe_eeprom_read(optoe, client, &read_page,
+			OPTOE_PAGE_SELECT_REG, 1);
+		if (ret < 0) {
+			dev_dbg(&client->dev,
+				"Read page register failed ret:%d!\n", ret);
+			return ret;
+		}
+		/* Detect unsupported pages. SFF-8636:
+		 * "Writing the value of a non-supported page shall
+		 *  not be accepted by the transceiver. The Page Select
+		 *  byte shall revert to 0 and read/write operations
+		 *  shall be to Upper Page 00h."
+		 */
+		if (read_page != page)
+			return OPTOE_EOF;
 	}
 
 	while (count) {
@@ -825,7 +843,7 @@ static ssize_t optoe_bin_write(struct file *filp, struct kobject *kobj,
 	return optoe_read_write(optoe, buf, off, count, OPTOE_WRITE_OP);
 }
 
-static int optoe_remove(struct i2c_client *client)
+static void optoe_remove(struct i2c_client *client)
 {
 	struct optoe_data *optoe;
 	int i;
@@ -843,7 +861,6 @@ static int optoe_remove(struct i2c_client *client)
 
 	kfree(optoe->writebuf);
 	kfree(optoe);
-	return 0;
 }
 
 static ssize_t show_dev_class(struct device *dev,
@@ -884,7 +901,11 @@ static ssize_t set_dev_class(struct device *dev,
 		/* SFP family */
 		/* if it doesn't exist, create 0x51 i2c address */
 		if (!optoe->client[1]) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,2,0)
+			optoe->client[1] = i2c_new_dummy_device(client->adapter, 0x51);
+#else
 			optoe->client[1] = i2c_new_dummy(client->adapter, 0x51);
+#endif
 			if (!optoe->client[1]) {
 				dev_err(&client->dev,
 					"address 0x51 unavailable\n");
@@ -966,8 +987,7 @@ static struct attribute_group optoe_attr_group = {
 	.attrs = optoe_attrs,
 };
 
-static int optoe_probe(struct i2c_client *client,
-			const struct i2c_device_id *id)
+static int optoe_probe(struct i2c_client *client)
 {
 	int err;
 	int use_smbus = 0;
@@ -995,7 +1015,7 @@ static int optoe_probe(struct i2c_client *client,
 			"probe, chip provided, flags:0x%x; name: %s\n",
 			chip.flags, client->name);
 	} else {
-		if (!id->driver_data) {
+		if (!i2c_get_match_data(client)) {
 			err = -ENODEV;
 			goto exit;
 		}
@@ -1119,7 +1139,11 @@ static int optoe_probe(struct i2c_client *client,
 
 	/* SFF-8472 spec requires that the second I2C address be 0x51 */
 	if (num_addresses == 2) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,2,0)
+		optoe->client[1] = i2c_new_dummy_device(client->adapter, 0x51);
+#else
 		optoe->client[1] = i2c_new_dummy(client->adapter, 0x51);
+#endif
 		if (!optoe->client[1]) {
 			dev_err(&client->dev, "address 0x51 unavailable\n");
 			err = -EADDRINUSE;

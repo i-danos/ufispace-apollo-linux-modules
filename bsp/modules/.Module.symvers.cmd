@@ -1,0 +1,1 @@
+savedcmd_/build-iso/danos-sources/ufispace-apollo-linux-modules/bsp/modules/Module.symvers :=  scripts/mod/modpost -M -m       -o /build-iso/danos-sources/ufispace-apollo-linux-modules/bsp/modules/Module.symvers -n -T /build-iso/danos-sources/ufispace-apollo-linux-modules/bsp/modules/modules.order -i Module.symvers -e 

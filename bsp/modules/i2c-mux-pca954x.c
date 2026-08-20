@@ -320,8 +320,7 @@ static void pca954x_cleanup(struct i2c_mux_core *muxc)
 /*
  * I2C init/probing/exit functions
  */
-static int pca954x_probe(struct i2c_client *client,
-			 const struct i2c_device_id *id)
+static int pca954x_probe(struct i2c_client *client)
 {
 	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
 	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
@@ -365,7 +364,7 @@ static int pca954x_probe(struct i2c_client *client,
 	if (match)
 		data->chip = of_device_get_match_data(&client->dev);
 	else
-		data->chip = &chips[id->driver_data];
+		data->chip = &chips[(unsigned long)i2c_get_match_data(client)];
 
 	data->last_chan = 0;		   /* force the first selection */
 
@@ -421,12 +420,11 @@ fail_cleanup:
 	return ret;
 }
 
-static int pca954x_remove(struct i2c_client *client)
+static void pca954x_remove(struct i2c_client *client)
 {
 	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
 
 	pca954x_cleanup(muxc);
-	return 0;
 }
 
 #ifdef CONFIG_PM_SLEEP
