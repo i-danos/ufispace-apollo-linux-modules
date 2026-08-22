@@ -1,0 +1,8 @@
+/tmp/
+/.debhelper/
+/files
+/*.substvars
+/*.debhelper.log
+/debhelper-build-stamp
+/autoreconf.*
+/ufispace-apollo-linux-modules-6.12.0-trunk-vyatta-amd64/
